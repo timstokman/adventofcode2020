@@ -7,7 +7,7 @@ use crate::common;
 const TOTAL_REPORT: i64 = 2020;
 
 pub fn answer() -> common::BoxResult<(i64, i64)> {
-    let input = read_input()?;
+    let input = read_input("day1_input")?;
     Ok((find_pair_summing_to(&input, TOTAL_REPORT)?, find_triple_summing_to(&input, TOTAL_REPORT)?))
 }
 
@@ -35,8 +35,8 @@ fn find_triple_summing_to(input: &HashSet<i64>, sum: i64) -> common::BoxResult<i
     bail!("answer not found")
 }
 
-fn read_input() -> common::BoxResult<HashSet<i64>> {
-    let file = File::open("day1_input")?;
+fn read_input(file: &str) -> common::BoxResult<HashSet<i64>> {
+    let file = File::open(file)?;
     let reader = io::BufReader::new(file);
     let mut result = HashSet::<i64>::new();
     for line in reader.lines() {

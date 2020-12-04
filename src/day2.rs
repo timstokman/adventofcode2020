@@ -28,7 +28,7 @@ impl PasswordEntry {
 }
 
 pub fn answer() -> common::BoxResult<(usize, usize)> {
-    let input = read_input()?;
+    let input = read_input("day2_input")?;
     Ok((num_valid_old_password_entries(&input), num_valid_new_password_entries(&input)))
 }
 
@@ -40,9 +40,9 @@ fn num_valid_new_password_entries(entries: &Vec<PasswordEntry>) -> usize {
     entries.iter().filter(|p| p.is_valid_new()).count()
 }
 
-fn read_input() -> common::BoxResult<Vec<PasswordEntry>> {
+fn read_input(file: &str) -> common::BoxResult<Vec<PasswordEntry>> {
     let re = Regex::new(r"(\d+)-(\d+) (\w): (\w+)")?;
-    let file = File::open("day2_input")?;
+    let file = File::open(file)?;
     let reader = io::BufReader::new(file);
     let mut result = Vec::<PasswordEntry>::new();
     for line in reader.lines() {
