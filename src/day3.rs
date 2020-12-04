@@ -32,11 +32,9 @@ pub fn answer() -> common::BoxResult<(i64, i64)> {
 fn get_number_trees(env: &RepeatingEnvironment, x_diff: usize, y_diff: usize) -> i64 {
     let (mut x, mut y, mut num_trees) = (0, 0, 0);
     while y < env.rows {
-        if env.is_tree(x, y) {
-            num_trees = num_trees + 1;
-        }
-        y = y + y_diff;
+        num_trees = num_trees + env.is_tree(x, y) as i64;
         x = x + x_diff;
+        y = y + y_diff;
     }
     num_trees
 }
