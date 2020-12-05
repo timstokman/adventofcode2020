@@ -33,9 +33,9 @@ fn is_valid_passport(passport: &HashMap<String, String>) -> bool {
 
 fn is_valid_passport_entry(key: &str, value: &str) -> bool {
     match key {
-        "byr" => (1920..=2002).contains(&value.parse::<i64>().unwrap_or(-1)),
-        "iyr" => (2010..=2020).contains(&value.parse::<i64>().unwrap_or(-1)),
-        "eyr" => (2020..=2030).contains(&value.parse::<i64>().unwrap_or(-1)),
+        "byr" => value.len() == 4 && (1920..=2002).contains(&value.parse::<i64>().unwrap_or(-1)),
+        "iyr" => value.len() == 4 && (2010..=2020).contains(&value.parse::<i64>().unwrap_or(-1)),
+        "eyr" => value.len() == 4 && (2020..=2030).contains(&value.parse::<i64>().unwrap_or(-1)),
         "hgt" => {
             lazy_static! {
                 static ref RE: Regex = Regex::new(r"^([0-9]+)(cm|in)$").expect("should be a valid regex");
@@ -57,7 +57,7 @@ fn is_valid_passport_entry(key: &str, value: &str) -> bool {
             }
             RE.is_match(value)
         },
-        "ecl" => ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].iter().any(|cont| *cont == value),
+        "ecl" => ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].contains(&value),
         "pid" => {
             lazy_static! {
                 static ref RE: Regex = Regex::new(r"^[0-9]{9}$").expect("should be a valid regex");
