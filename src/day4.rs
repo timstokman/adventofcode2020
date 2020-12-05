@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use regex::Regex;
 use std::io::{self, BufRead};
+use lazy_static::lazy_static;
 
 static PASSPORT_KEYS: [&str; 7] = [
     "byr",
@@ -27,7 +28,7 @@ fn is_valid_passport_simple(passport: &HashMap<String, String>) -> bool {
 
 fn is_valid_passport(passport: &HashMap<String, String>) -> bool {
     is_valid_passport_simple(passport) &&
-    PASSPORT_KEYS.iter().all(|key| is_valid_passport_entry(&key, &passport.get::<str>(key).expect("key not found")))
+    passport.iter().all(|(key, value)| is_valid_passport_entry(&key, &value))
 }
 
 fn is_valid_passport_entry(key: &str, value: &str) -> bool {
@@ -36,8 +37,10 @@ fn is_valid_passport_entry(key: &str, value: &str) -> bool {
         "iyr" => (2010..=2020).contains(&value.parse::<i64>().unwrap_or(-1)),
         "eyr" => (2020..=2030).contains(&value.parse::<i64>().unwrap_or(-1)),
         "hgt" => {
-            let re = Regex::new(r"^([0-9]+)(cm|in)$").expect("should be a valid regex");
-            match re.captures(value) {
+            lazy_static! {
+                static ref RE: Regex = Regex::new(r"^([0-9]+)(cm|in)$").expect("should be a valid regex");
+            }
+            match RE.captures(value) {
                 Some(captures) => {
                     let num = captures[1].parse::<i64>().expect("should be a number at this point");
                     if &captures[2] == "cm" {
@@ -48,9 +51,20 @@ fn is_valid_passport_entry(key: &str, value: &str) -> bool {
                 }, _ => false
             }
         },
-        "hcl" => Regex::new(r"^#[0-9a-f]+$").expect("should be a valid regex").is_match(value),
+        "hcl" => {
+            lazy_static! {
+                static ref RE: Regex = Regex::new(r"^#[0-9a-f]+$").expect("should be a valid regex");
+            }
+            RE.is_match(value)
+        },
         "ecl" => ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].iter().any(|cont| *cont == value),
-        "pid" => Regex::new(r"^[0-9]{9}$").expect("should be a valid regex").is_match(value),
+        "pid" => {
+            lazy_static! {
+                static ref RE: Regex = Regex::new(r"^[0-9]{9}$").expect("should be a valid regex");
+            }
+            RE.is_match(value)
+        }
+        "cid" => true,
         _ => false
     }
 }
