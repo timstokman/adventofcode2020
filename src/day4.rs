@@ -47,12 +47,13 @@ fn read_input(file: &str) -> common::BoxResult<Vec<HashMap<String, String>>> {
     let file = File::open(file)?;
     let reader = io::BufReader::new(file);
     let lines: Vec<String> = reader.lines().collect::<Result<_, _>>()?;
-    let passports = lines.split(|line| line.is_empty())
-                         .map(|lines| lines.iter()
-                                           .flat_map(|l| l.split(' '))
-                                           .map(|passport_entry| passport_entry.split(':').collect::<Vec<&str>>())
-                                           .map(|passport_entry| (passport_entry[0].to_string(), passport_entry[1].to_string()))
-                                           .collect::<HashMap<_, _>>())
-                         .collect();
-    Ok(passports)
+    Ok(lines.split(|line| line.is_empty()).map(read_passport).collect())
+}
+
+fn read_passport(lines: &[String]) -> HashMap<String, String> {
+    lines.iter()
+         .flat_map(|l| l.split(' '))
+         .map(|passport_entry| passport_entry.split(':').collect::<Vec<&str>>())
+         .map(|passport_entry| (passport_entry[0].to_string(), passport_entry[1].to_string()))
+         .collect::<HashMap<_, _>>()
 }
