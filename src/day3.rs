@@ -13,7 +13,7 @@ impl RepeatingEnvironment {
         RepeatingEnvironment {
             rows: environment.len(),
             cols: environment[0].len(),
-            environment: environment
+            environment
         }
     }
 
@@ -32,11 +32,9 @@ pub fn answer() -> common::BoxResult<(i64, i64)> {
 fn get_number_trees(env: &RepeatingEnvironment, x_diff: usize, y_diff: usize) -> i64 {
     let (mut x, mut y, mut num_trees) = (0, 0, 0);
     while y < env.rows {
-        if env.is_tree(x, y) {
-            num_trees = num_trees + 1;
-        }
-        y = y + y_diff;
-        x = x + x_diff;
+        num_trees += env.is_tree(x, y) as i64;
+        y += y_diff;
+        x += x_diff;
     }
     num_trees
 }
@@ -50,5 +48,5 @@ fn read_input(file: &str) -> common::BoxResult<RepeatingEnvironment> {
         let env_row: Vec<bool> = line_found.chars().map(|c| c == '#').collect();
         result.push(env_row);
     }
-    return Ok(RepeatingEnvironment::new(result))
+    Ok(RepeatingEnvironment::new(result))
 }

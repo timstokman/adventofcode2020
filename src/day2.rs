@@ -32,11 +32,11 @@ pub fn answer() -> common::BoxResult<(usize, usize)> {
     Ok((num_valid_old_password_entries(&input), num_valid_new_password_entries(&input)))
 }
 
-fn num_valid_old_password_entries(entries: &Vec<PasswordEntry>) -> usize {
+fn num_valid_old_password_entries(entries: &[PasswordEntry]) -> usize {
     entries.iter().filter(|p| p.is_valid_old()).count()
 }
 
-fn num_valid_new_password_entries(entries: &Vec<PasswordEntry>) -> usize {
+fn num_valid_new_password_entries(entries: &[PasswordEntry]) -> usize {
     entries.iter().filter(|p| p.is_valid_new()).count()
 }
 
@@ -52,10 +52,10 @@ fn read_input(file: &str) -> common::BoxResult<Vec<PasswordEntry>> {
             PasswordEntry { 
                 first_num: captures[1].parse::<usize>()?,
                 second_num: captures[2].parse::<usize>()?, 
-                policy_letter: captures[3].chars().nth(0).ok_or_else(|| SimpleError::new("could not find policy_letter"))?, 
+                policy_letter: captures[3].chars().next().ok_or_else(|| SimpleError::new("could not find policy_letter"))?, 
                 password: captures[4].to_string().chars().collect()
             }
         )
     }
-    return Ok(result);
+    Ok(result)
 }
