@@ -10,16 +10,15 @@ pub fn answer() -> common::BoxResult<(usize, usize)> {
     Ok((sum_any_answer_yes, sum_all_answer_yes))
 }
 
-fn any_answer_yes(group: &Vec<String>) -> usize {
-    let result: HashSet<char> = group.iter().flat_map(|m| m.chars()).collect();
-    result.len()
+fn any_answer_yes(group: &[String]) -> usize {
+    group.iter().flat_map(|m| m.chars()).collect::<HashSet<char>>().len()
 }
 
-fn all_answer_yes(group: &Vec<String>) -> usize {
+fn all_answer_yes(group: &[String]) -> usize {
     let mut sets = group.iter()
                         .map(|m| m.chars().collect::<HashSet<char>>());
     let first = sets.next().expect("should be at least one line in a group");
-    sets.fold(first, |l, r| l.intersection(&r).map(|c| *c).collect::<HashSet<char>>())
+    sets.fold(first, |l, r| &l & &r)
         .len()
 }
 
@@ -27,5 +26,5 @@ fn read_input(file: &str) -> common::BoxResult<Vec<Vec<String>>> {
     let file = File::open(file)?;
     let reader = io::BufReader::new(file);
     let lines: Vec<String> = reader.lines().collect::<Result<_, _>>()?;
-    Ok(lines.split(|line| line.is_empty()).map(|g| g.iter().map(|l| l.clone()).collect()).collect())
+    Ok(lines.split(|line| line.is_empty()).map(|g| g.to_vec()).collect())
 }

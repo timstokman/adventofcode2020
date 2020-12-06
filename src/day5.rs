@@ -6,8 +6,8 @@ use simple_error::SimpleError;
 
 pub fn answer() -> common::BoxResult<(usize, usize)> {
     let seat_ids = get_seat_ids("day5_input")?;
-    let max = seat_ids.iter().max().ok_or(SimpleError::new("no seat ids"))?;
-    let min = seat_ids.iter().min().ok_or(SimpleError::new("no seat ids"))?;
+    let max = seat_ids.iter().max().ok_or_else(|| SimpleError::new("no seat ids"))?;
+    let min = seat_ids.iter().min().ok_or_else(|| SimpleError::new("no seat ids"))?;
     let sum = seat_ids.iter().sum();
     Ok((*max, calculate_missing_seat(seat_ids.len(), sum, *min)))
 }
