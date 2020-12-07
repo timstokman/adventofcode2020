@@ -13,6 +13,8 @@ pub fn answer() -> common::BoxResult<(usize, usize)> {
 }
 
 fn calculate_missing_seat(len: usize, sum: usize, min: usize) -> usize {
+    // SUM(1..n) = n * (n + 1) / 2
+    // So if we sum all the seat numbers, substract the bottom part, subtract the actual sum, then the seat number remains
     let below_missing_sum = (min - 1) * min / 2;
     let expected_sum = (len + min) * (len + min + 1) / 2;
     expected_sum - below_missing_sum - sum
