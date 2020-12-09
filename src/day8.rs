@@ -1,7 +1,7 @@
 use crate::common;
 use std::fs::File;
 use std::io::{self, BufRead};
-use simple_error::SimpleError;
+use simple_error::bail;
 
 #[derive(PartialEq, Clone, Copy)]
 enum Instruction {
@@ -60,7 +60,7 @@ fn find_flipped_instruction(instructions: &mut Vec<(Instruction, i64)>) -> (i64,
     (accumulator, position, flipped_instruction)
 }
 
-fn fill_flipped_table(pos: usize, table: &mut Vec<Option<bool>>, instructions: &Vec<(Instruction, i64)>) {
+fn fill_flipped_table(pos: usize, table: &mut Vec<Option<bool>>, instructions: &[(Instruction, i64)]) {
     if pos >= instructions.len() {
         table[pos] = Some(true);
         return;
@@ -80,7 +80,7 @@ fn fill_flipped_table(pos: usize, table: &mut Vec<Option<bool>>, instructions: &
     table[pos] = table[next_pos];
 }
 
-fn execute(instructions: &Vec<(Instruction, i64)>) -> (i64, usize) {
+fn execute(instructions: &[(Instruction, i64)]) -> (i64, usize) {
     let mut accumulator = 0;
     let mut position = 0;
     let mut already_executed = vec![false; instructions.len()];
@@ -105,7 +105,7 @@ fn execute(instructions: &Vec<(Instruction, i64)>) -> (i64, usize) {
 }
 
 fn read_input(file: &str) -> common::BoxResult<Vec<(Instruction, i64)>> {
-    let file = File::open(file).expect("error opening file");
+    let file = File::open(file)?;
     let reader = io::BufReader::new(file);
     Ok(reader.lines().map(|l| -> common::BoxResult<(Instruction, i64)> {
         let line = l?;
@@ -114,7 +114,7 @@ fn read_input(file: &str) -> common::BoxResult<Vec<(Instruction, i64)>> {
             "acc" => Ok((Instruction::Acc, num)),
             "jmp" => Ok((Instruction::Jmp, num)),
             "nop" => Ok((Instruction::Nop, num)),
-            _ => Err(Box::new(SimpleError::new("unknown instruction")))
+            _ => bail!("unknown instruction")
         }
     }).collect::<Result<_, _>>()?)
 }
