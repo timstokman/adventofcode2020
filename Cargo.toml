@@ -10,3 +10,7 @@ edition = "2018"
 regex = "1"
 simple-error = "0.2"
 lazy_static = "1"
+
+[profile.release]
+lto = "fat"
+panic = "abort"

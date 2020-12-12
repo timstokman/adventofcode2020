@@ -8,6 +8,7 @@ mod day6;
 mod day7;
 mod day8;
 mod day9;
+mod day10;
 
 fn main() {
     println!("day 1: {:?}", day1::answer());
@@ -19,4 +20,5 @@ fn main() {
     println!("day 7: {:?}", day7::answer());
     println!("day 8: {:?}", day8::answer());
     println!("day 9: {:?}", day9::answer());
+    println!("day 10: {:?}", day10::answer());
 }
