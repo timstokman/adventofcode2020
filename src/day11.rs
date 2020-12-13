@@ -75,6 +75,10 @@ impl SeatStates {
         self.states.iter().flat_map(|state_line| state_line.iter().filter(|s| **s == state)).count()
     }
 
+    fn get_state(&self, x: usize, y: usize) -> Option<SeatState> {
+        self.states.get(y).and_then(|gotten_state_line| gotten_state_line.get(x).map(|s|*s))
+    }
+
     fn num_neighbours_occupied(&self, x: usize, y: usize) -> usize {
         fn add(i: usize, d: i64) -> usize {
             if d.is_negative() {
@@ -87,8 +91,8 @@ impl SeatStates {
         static NEIGHBOURS: [(i64, i64); 8] = [(-1i64, 0i64), (1i64, 0i64), (0i64, -1i64), (0i64, 1i64), (-1i64, -1i64), (1i64, 1i64), (-1i64, 1i64), (1i64, -1i64)];
         NEIGHBOURS.iter()
                   .cloned()
-                  .filter_map(|(n_x, n_y)| self.states.get(add(y, n_y)).and_then(|gotten_state_line| gotten_state_line.get(add(x, n_x))))
-                  .filter(|s| **s == SeatState::Occupied)
+                  .filter_map(|(n_x, n_y)| self.get_state(add(x, n_x), add(y, n_y)))
+                  .filter(|s| *s == SeatState::Occupied)
                   .count()
     }
 
