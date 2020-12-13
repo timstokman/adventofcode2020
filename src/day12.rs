@@ -72,8 +72,8 @@ impl State {
         match instruction {
             Instruction::North(i) => Ok(State::new(self.east, self.north, self.direction, self.waypoint_east, self.waypoint_north + i)),
             Instruction::East(i) =>  Ok(State::new(self.east, self.north, self.direction, self.waypoint_east + i, self.waypoint_north)),
-            Instruction::South(i) => self.next(Instruction::North(-1 * i)),
-            Instruction::West(i) =>  self.next(Instruction::East(-1 * i)),
+            Instruction::South(i) => self.next_actual(Instruction::North(-1 * i)),
+            Instruction::West(i) =>  self.next_actual(Instruction::East(-1 * i)),
             Instruction::Forward(i) => Ok(State::new(self.east + self.waypoint_east * i, self.north + self.waypoint_north * i, self.direction, self.waypoint_east, self.waypoint_north)),
             Instruction::Right(i) => {
                 match i.rem_euclid(360) {
@@ -84,7 +84,7 @@ impl State {
                     _ => bail!(format!("invalid direction: {}", self.direction))
                 }
             }
-            Instruction::Left(i) =>  self.next(Instruction::Right(-1 * i)),
+            Instruction::Left(i) =>  self.next_actual(Instruction::Right(-1 * i)),
         }
     }
 
@@ -93,11 +93,9 @@ impl State {
     }
 
     fn process(&self, instructions: &Vec<Instruction>, next_fn: fn(&State, Instruction) -> common::BoxResult<State>) -> common::BoxResult<State> {
-        println!("processing: \n\n{:?}", self);
         let mut state = *self;
         for instruction in instructions {
             state = next_fn(&state, *instruction)?;
-            println!("{:?}", state);
         }
         Ok(state)
     }
