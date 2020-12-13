@@ -16,7 +16,7 @@ pub fn answer() -> common::BoxResult<(i64, i64)> {
     Ok((difference_steps.0 * difference_steps.1, different_arrangements))
 }
 
-fn count_different_arrangements(adapters: &Vec<i64>) -> i64 {
+fn count_different_arrangements(adapters: &[i64]) -> i64 {
     let mut result = vec![1; adapters.len()];
     for (i, adapter) in adapters.iter().enumerate().rev().skip(1) {
         let possible_jumps = ((i + 1)..cmp::min(i + 1 + MAX_DIFFERENCE as usize, adapters.len()))
@@ -27,7 +27,7 @@ fn count_different_arrangements(adapters: &Vec<i64>) -> i64 {
     result[0]
 }
 
-fn count_difference_steps(adapters: &Vec<i64>) -> common::BoxResult<(i64, i64)> {
+fn count_difference_steps(adapters: &[i64]) -> common::BoxResult<(i64, i64)> {
     let mut adapters_iter = adapters.iter().cloned();
     let mut current = adapters_iter.next().ok_or_else(|| SimpleError::new("no values found"))?;
     let mut difference_count: (i64, i64) = (0, 0);
@@ -48,7 +48,7 @@ fn read_input(file: &str) -> common::BoxResult<Vec<i64>> {
     let file = File::open(file)?;
     let reader = io::BufReader::new(file);
     let mut adapters: Vec<i64> = reader.lines().map(|l| -> common::BoxResult<_> { Ok(l?.parse::<i64>()?) }).collect::<Result<_, _>>()?;
-    adapters.sort();
+    adapters.sort_unstable();
     let last_value = adapters.last().ok_or_else(|| SimpleError::new("no values found"))? + 3;
     Ok(iter::once(0i64).chain(adapters.iter().cloned()).chain(iter::once(last_value)).collect())
 }
