@@ -48,7 +48,7 @@ fn part_1(start_time: i64, bus_nrs: &[Option<i64>]) -> common::BoxResult<i64> {
 }
 
 fn part_2(bus_nrs: &[Option<i64>]) -> common::BoxResult<i64> {
-    let a = bus_nrs.iter().enumerate().filter_map(|(i, bus_nr)| bus_nr.map(|_| i as i64)).collect::<Vec<_>>();
+    let a = bus_nrs.iter().enumerate().filter_map(|(i, bus_nr)| bus_nr.map(|b| b - i as i64)).collect::<Vec<_>>();
     let n = bus_nrs.iter().filter_map(|bus_nr| *bus_nr).collect::<Vec<_>>();
     Ok(chinese_remainder(&a, &n).ok_or_else(|| SimpleError::new("no solution"))?)
 }
