@@ -52,10 +52,10 @@ impl State {
         match instruction {
             Instruction::North(i) => Ok(State::new(self.east, self.north + i, self.direction, self.waypoint_east, self.waypoint_north)),
             Instruction::East(i) =>  Ok(State::new(self.east + i, self.north, self.direction, self.waypoint_east, self.waypoint_north)),
-            Instruction::South(i) => self.next(Instruction::North(-1 * i)),
-            Instruction::West(i) =>  self.next(Instruction::East(-1 * i)),
+            Instruction::South(i) => self.next(Instruction::North(-i)),
+            Instruction::West(i) =>  self.next(Instruction::East(-i)),
             Instruction::Right(i) => Ok(State::new(self.east, self.north, (self.direction + i).rem_euclid(360), self.waypoint_east, self.waypoint_north)),
-            Instruction::Left(i) =>  self.next(Instruction::Right(-1 * i)),
+            Instruction::Left(i) =>  self.next(Instruction::Right(-i)),
             Instruction::Forward(i) => {
                 match self.direction {
                     0 => self.next(Instruction::North(i)),
@@ -72,19 +72,19 @@ impl State {
         match instruction {
             Instruction::North(i) => Ok(State::new(self.east, self.north, self.direction, self.waypoint_east, self.waypoint_north + i)),
             Instruction::East(i) =>  Ok(State::new(self.east, self.north, self.direction, self.waypoint_east + i, self.waypoint_north)),
-            Instruction::South(i) => self.next_actual(Instruction::North(-1 * i)),
-            Instruction::West(i) =>  self.next_actual(Instruction::East(-1 * i)),
+            Instruction::South(i) => self.next_actual(Instruction::North(-i)),
+            Instruction::West(i) =>  self.next_actual(Instruction::East(-i)),
             Instruction::Forward(i) => Ok(State::new(self.east + self.waypoint_east * i, self.north + self.waypoint_north * i, self.direction, self.waypoint_east, self.waypoint_north)),
             Instruction::Right(i) => {
                 match i.rem_euclid(360) {
                     0 => Ok(*self),
-                    90 => Ok(State::new(self.east, self.north, self.direction, self.waypoint_north, -1 * self.waypoint_east)),
-                    180 => Ok(State::new(self.east, self.north, self.direction, -1 * self.waypoint_east, -1 * self.waypoint_north)),
-                    270 => Ok(State::new(self.east, self.north, self.direction, -1 * self.waypoint_north, self.waypoint_east)),
+                    90 => Ok(State::new(self.east, self.north, self.direction, self.waypoint_north, -self.waypoint_east)),
+                    180 => Ok(State::new(self.east, self.north, self.direction, -self.waypoint_east, -self.waypoint_north)),
+                    270 => Ok(State::new(self.east, self.north, self.direction, -self.waypoint_north, self.waypoint_east)),
                     _ => bail!(format!("invalid direction: {}", self.direction))
                 }
             }
-            Instruction::Left(i) =>  self.next_actual(Instruction::Right(-1 * i)),
+            Instruction::Left(i) =>  self.next_actual(Instruction::Right(-i)),
         }
     }
 
@@ -92,7 +92,7 @@ impl State {
         self.east.abs() + self.north.abs()
     }
 
-    fn process(&self, instructions: &Vec<Instruction>, next_fn: fn(&State, Instruction) -> common::BoxResult<State>) -> common::BoxResult<State> {
+    fn process(&self, instructions: &[Instruction], next_fn: fn(&State, Instruction) -> common::BoxResult<State>) -> common::BoxResult<State> {
         let mut state = *self;
         for instruction in instructions {
             state = next_fn(&state, *instruction)?;

@@ -94,7 +94,7 @@ impl SeatStates {
     }
 
     fn get_state(&self, x: usize, y: usize) -> Option<SeatState> {
-        self.states.get(y).and_then(|gotten_state_line| gotten_state_line.get(x).map(|s|*s))
+        self.states.get(y).and_then(|gotten_state_line| gotten_state_line.get(x).copied())
     }
 
     fn num_neighbours_occupied(&self, x: usize, y: usize) -> usize {
@@ -112,7 +112,7 @@ impl SeatStates {
                     (1..).map(|mult| self.get_state(add(x, mult * n_x), add(y, mult * n_y)))
                          .take_while(|s| *s != None)
                          .find(|s| *s != Some(SeatState::Floor)) == Some(Some(SeatState::Occupied)))
-                  .filter(|s| *s == true)
+                  .filter(|s| *s)
                   .count()
     }
 
