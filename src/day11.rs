@@ -24,8 +24,16 @@ impl fmt::Debug for SeatState {
 }
 
 impl SeatState {
-    fn next(self, number_occupied: usize) -> SeatState {
+    fn next_1(self, number_occupied: usize) -> SeatState {
         match (self, number_occupied == 0, number_occupied >= 4) {
+            (SeatState::Empty, true, false) => SeatState::Occupied,
+            (SeatState::Occupied, false, true) => SeatState::Empty,
+            _ => self
+        }
+    }
+
+    fn next_2(self, number_occupied: usize) -> SeatState {
+        match (self, number_occupied == 0, number_occupied >= 5) {
             (SeatState::Empty, true, false) => SeatState::Occupied,
             (SeatState::Occupied, false, true) => SeatState::Empty,
             _ => self
@@ -33,9 +41,19 @@ impl SeatState {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 struct SeatStates {
     pub states: Vec<Vec<SeatState>>
+}
+
+static NEIGHBOURS: [(i64, i64); 8] = [(-1i64, 0i64), (1i64, 0i64), (0i64, -1i64), (0i64, 1i64), (-1i64, -1i64), (1i64, 1i64), (-1i64, 1i64), (1i64, -1i64)];
+
+fn add(i: usize, d: i64) -> usize {
+    if d.is_negative() {
+        i.wrapping_sub(d.wrapping_abs() as usize)
+    } else {
+        i + d as usize
+    }
 }
 
 impl fmt::Debug for SeatStates {
@@ -60,11 +78,11 @@ impl SeatStates {
         }
     }
 
-    fn count_steady_state_occupied(self) -> usize {
+    fn count_steady_state_occupied(self, next_fn: fn(&SeatStates, usize, usize) -> SeatState) -> usize {
         let mut state = self;
         let mut has_changed = true;
         while has_changed {
-            let next_state = state.next_state();
+            let next_state = state.next_state(next_fn);
             has_changed = next_state != state;
             state = next_state;
         }
@@ -80,15 +98,6 @@ impl SeatStates {
     }
 
     fn num_neighbours_occupied(&self, x: usize, y: usize) -> usize {
-        fn add(i: usize, d: i64) -> usize {
-            if d.is_negative() {
-                i.wrapping_sub(d.wrapping_abs() as usize)
-            } else {
-                i + d as usize
-            }
-        }
-
-        static NEIGHBOURS: [(i64, i64); 8] = [(-1i64, 0i64), (1i64, 0i64), (0i64, -1i64), (0i64, 1i64), (-1i64, -1i64), (1i64, 1i64), (-1i64, 1i64), (1i64, -1i64)];
         NEIGHBOURS.iter()
                   .cloned()
                   .filter_map(|(n_x, n_y)| self.get_state(add(x, n_x), add(y, n_y)))
@@ -96,7 +105,26 @@ impl SeatStates {
                   .count()
     }
 
-    fn next_state(&self) -> SeatStates {
+    fn num_neighbours_occupied_sight(&self, x: usize, y: usize) -> usize {
+        NEIGHBOURS.iter()
+                  .cloned()
+                  .map(|(n_x, n_y)| 
+                    (1..).map(|mult| self.get_state(add(x, mult * n_x), add(y, mult * n_y)))
+                         .take_while(|s| *s != None)
+                         .find(|s| *s != Some(SeatState::Floor)) == Some(Some(SeatState::Occupied)))
+                  .filter(|s| *s == true)
+                  .count()
+    }
+
+    fn next_1(&self, x: usize, y: usize) -> SeatState {
+        self.states[y][x].next_1(self.num_neighbours_occupied(x, y))
+    }
+
+    fn next_2(&self, x: usize, y: usize) -> SeatState {
+        self.states[y][x].next_2(self.num_neighbours_occupied_sight(x, y))
+    }
+
+    fn next_state(&self, next_fn: fn(&SeatStates, usize, usize) -> SeatState) -> SeatStates {
         SeatStates::new(
             self.states
                 .iter()
@@ -104,7 +132,7 @@ impl SeatStates {
                 .map(|(y, state_line)| {
                     state_line.iter()
                               .enumerate()
-                              .map(|(x, seat_state)| seat_state.next(self.num_neighbours_occupied(x, y)))
+                              .map(|(x, _)| next_fn(&self, x, y))
                               .collect()
                 })
                 .collect())
@@ -128,7 +156,7 @@ impl SeatStates {
     }
 }
 
-pub fn answer() -> common::BoxResult<usize> {
+pub fn answer() -> common::BoxResult<(usize, usize)> {
     let input = SeatStates::read_input("day11_input")?;
-    Ok(input.count_steady_state_occupied())
+    Ok((input.clone().count_steady_state_occupied(SeatStates::next_1), input.count_steady_state_occupied(SeatStates::next_2)))
 }
