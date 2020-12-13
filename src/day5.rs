@@ -67,6 +67,6 @@ mod tests {
 
     #[test]
     fn test_missing_seat() {
-        assert_eq!(calculate_missing_seat(3, 2, 11), 3);
+        assert_eq!(calculate_missing_seat(3, 2, 11), 48);
     }
 }
